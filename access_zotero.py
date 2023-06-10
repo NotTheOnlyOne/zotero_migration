@@ -1,8 +1,13 @@
 from pyzotero import zotero
+import csv
+import sys
+
+csv_file_path = "zotero.csv"
+fieldnames = ["title","text","url"]
 
 library_type='user'
 
-import sys
+csv_data = []
 
 # Access the command line arguments
 arguments = sys.argv
@@ -20,8 +25,23 @@ items = zot.top(limit=10)
 for item in items:
 
     
-    print(item['data']['title'])
-    print(item['data']['abstractNote'])
-    print(item['data']['url'])
+    title = item['data']['title'] 
+    text = item['data']['abstractNote']
+    url = item['data']['url']
+    csv_data_row = { 
+        "text" : text,
+	"url" : url,
+	"title" : title
+    }
+    
+    csv_data.append(csv_data_row)
+    print (csv_data_row)
 
-    #print('Item: %s | Key: %s' % (item['data']['itemType'], item['data']['title'], item['data']['title'],item['data']['title']))
+
+# Write the data to the CSV file
+with open(csv_file_path, 'w', newline='') as csv_file:
+    writer = csv.DictWriter(csv_file, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
+    writer.writeheader()
+    writer.writerows(csv_data)
+
+print(len(csv_data))
