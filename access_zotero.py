@@ -18,7 +18,17 @@ library_id = arguments[1]
 api_key = arguments[2]
 zot = zotero.Zotero(library_id, library_type, api_key)
 
-items = zot.top(limit=10)
+
+total_items = zot.count_items()
+
+per_page = 100  # Number of items to fetch per batch
+items = []
+
+for start in range(0, total_items, per_page):
+    batch =zot.items(start=start, limit=per_page)
+    items.extend(batch)
+    print(len(items))
+
 
 # we've retrieved the latest five top-level items in our library
 # we can print each item's item type and ID
@@ -26,7 +36,11 @@ for item in items:
 
     
     title = item['data']['title'] 
-    text = item['data']['abstractNote']
+    try:
+        text = item['data']['abstractNote']
+    except:
+        text = ''
+
     url = item['data']['url']
     csv_data_row = { 
         "text" : text,
@@ -35,7 +49,6 @@ for item in items:
     }
     
     csv_data.append(csv_data_row)
-    print (csv_data_row)
 
 
 # Write the data to the CSV file
